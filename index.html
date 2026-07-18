@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171a20">
+  <title>Scientific Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="calculator" aria-label="Scientific calculator">
+      <header class="brand-row">
+        <div><strong>SCIENTIFIC</strong><span>CALCULATOR</span></div>
+        <span class="model">FX-85</span>
+      </header>
+      <section class="screen" aria-live="polite">
+        <div class="status-bar">
+          <span id="status-angle">DEG</span>
+          <span id="status-mem" hidden>M</span>
+        </div>
+        <div id="expression">2+3×sin(30)²</div>
+        <div id="result">2.75</div>
+      </section>
+      <div id="keypad" aria-label="Calculator keypad">
+        <button class="key key-action" data-action="shift">SHIFT</button>
+        <button class="key key-function" data-insert="²">x²</button>
+        <button class="key key-function" data-insert="^">x<sup>y</sup></button>
+        <button class="key key-function" data-insert="√(">√</button>
+        <button class="key key-action key-danger" data-action="del">DEL</button>
+
+        <button class="key key-function shiftable" data-insert="sin(" data-shift-insert="asin(" data-shift-label="sin⁻¹"><span class="shift-legend">sin⁻¹</span><span class="key-label">sin</span></button>
+        <button class="key key-function shiftable" data-insert="cos(" data-shift-insert="acos(" data-shift-label="cos⁻¹"><span class="shift-legend">cos⁻¹</span><span class="key-label">cos</span></button>
+        <button class="key key-function shiftable" data-insert="tan(" data-shift-insert="atan(" data-shift-label="tan⁻¹"><span class="shift-legend">tan⁻¹</span><span class="key-label">tan</span></button>
+        <button class="key key-function shiftable" data-insert="log(" data-shift-insert="10^(" data-shift-label="10ˣ"><span class="shift-legend">10ˣ</span><span class="key-label">log</span></button>
+        <button class="key key-function shiftable" data-insert="ln(" data-shift-insert="e^(" data-shift-label="eˣ"><span class="shift-legend">eˣ</span><span class="key-label">ln</span></button>
+
+        <button class="key key-function" data-insert="(">(</button>
+        <button class="key key-function" data-insert=")">)</button>
+        <button class="key key-function" data-insert="!">x!</button>
+        <button class="key key-function" data-insert="π">π</button>
+        <button class="key key-function" data-insert="e">e</button>
+
+        <button class="key key-memory" data-action="mplus">M+</button>
+        <button class="key key-memory" data-action="mminus">M−</button>
+        <button class="key key-memory" data-action="mr">MR</button>
+        <button class="key key-memory" data-action="mc">MC</button>
+        <button class="key key-memory" data-action="mode">D/R</button>
+
+        <button class="key key-number" data-insert="7">7</button>
+        <button class="key key-number" data-insert="8">8</button>
+        <button class="key key-number" data-insert="9">9</button>
+        <button class="key key-operator" data-insert="÷">÷</button>
+        <button class="key key-action key-danger" data-action="ac">AC</button>
+
+        <button class="key key-number" data-insert="4">4</button>
+        <button class="key key-number" data-insert="5">5</button>
+        <button class="key key-number" data-insert="6">6</button>
+        <button class="key key-operator" data-insert="×">×</button>
+        <button class="key key-action" data-action="hist">hist</button>
+
+        <button class="key key-number" data-insert="1">1</button>
+        <button class="key key-number" data-insert="2">2</button>
+        <button class="key key-number" data-insert="3">3</button>
+        <button class="key key-operator" data-insert="-">−</button>
+        <button class="key key-function" data-insert="Ans">Ans</button>
+
+        <button class="key key-number" data-insert="0">0</button>
+        <button class="key key-number" data-insert=".">.</button>
+        <button class="key key-function" data-insert="×10^(">×10<sup>^</sup></button>
+        <button class="key key-operator" data-insert="+">+</button>
+        <button class="key key-equals" data-action="equals">=</button>
+      </div>
+    </section>
+    <aside id="history-panel" aria-label="Calculation history" aria-hidden="true">
+      <div class="history-header">
+        <div>
+          <span class="history-kicker">CALC LOG</span>
+          <h2>History</h2>
+        </div>
+        <button id="clear-history" type="button">Clear</button>
+      </div>
+      <ul id="history-list"></ul>
+    </aside>
+  </main>
+  <script type="module" src="js/ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculator engine tests</title>
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: .5rem; text-align: left; }
+    .pass { background: #d9f7df; }
+    .fail { background: #ffd9d9; }
+  </style>
+</head>
+<body>
+  <h1>Calculator engine tests</h1>
+  <p id="summary">Running…</p>
+  <table>
+    <thead><tr><th>Case</th><th>Expected</th><th>Result</th></tr></thead>
+    <tbody id="results"></tbody>
+  </table>
+  <script type="module">
+    import { CalcMathError, CalcSyntaxError, evaluate, formatNumber } from '../js/engine.js';
+
+    const defaultOptions = { angleMode: 'DEG', ans: 0, mem: 0 };
+    const cases = [];
+
+    function assertClose(expr, options, expected) {
+      cases.push({ label: expr, expected: String(expected), run: () => Math.abs(evaluate(expr, options) - expected) < 1e-9 });
+    }
+
+    function assertThrows(expr, options, ErrorClass) {
+      cases.push({ label: expr || '(empty)', expected: ErrorClass.name, run: () => {
+        try { evaluate(expr, options); } catch (error) { return error instanceof ErrorClass; }
+        return false;
+      }});
+    }
+
+    function assertFormat(value, expectedString) {
+      cases.push({ label: `formatNumber(${value})`, expected: expectedString, run: () => formatNumber(value) === expectedString });
+    }
+
+    [
+      ['2+3×4', 14], ['(2+3)×4', 20], ['10÷4', 2.5], ['2-3-4', -5],
+      ['100÷10÷2', 5], ['-5+3', -2], ['5×-3', -15], ['--5', 5],
+      ['(1+2)×(3+4)', 21], ['2+-3', -1], ['2++3', 5]
+    ].forEach(([expr, expected]) => assertClose(expr, defaultOptions, expected));
+
+    ['', '(2+', '2+', ')2(', '1.2.3', '2#3'].forEach((expr) =>
+      assertThrows(expr, defaultOptions, CalcSyntaxError));
+
+    [
+      ['2^3^2', defaultOptions, 512], ['-3^2', defaultOptions, -9], ['2^-3', defaultOptions, 0.125],
+      ['5!', defaultOptions, 120], ['0!', defaultOptions, 1], ['3!!', defaultOptions, 720],
+      ['4²', defaultOptions, 16], ['sin(30)', defaultOptions, 0.5], ['cos(60)', defaultOptions, 0.5],
+      ['tan(45)', defaultOptions, 1], ['sin(π÷2)', { ...defaultOptions, angleMode: 'RAD' }, 1],
+      ['asin(0.5)', defaultOptions, 30], ['atan(1)', { ...defaultOptions, angleMode: 'RAD' }, Math.PI / 4],
+      ['log(1000)', defaultOptions, 3], ['ln(e)', defaultOptions, 1], ['√(16)', defaultOptions, 4],
+      ['√(2)²', defaultOptions, 2], ['10^(2)', defaultOptions, 100],
+      ['Ans+1', { ...defaultOptions, ans: 41 }, 42], ['M×2', { ...defaultOptions, mem: 21 }, 42],
+      ['2π', defaultOptions, 2 * Math.PI], ['3(4+1)', defaultOptions, 15], ['2sin(30)', defaultOptions, 1],
+      ['(1+2)(3+4)', defaultOptions, 21], ['2Ans', { ...defaultOptions, ans: 5 }, 10], ['πe', defaultOptions, Math.PI * Math.E]
+    ].forEach(([expr, options, expected]) => assertClose(expr, options, expected));
+
+    ['1÷0', 'log(-1)', 'log(0)', 'ln(0)', '√(-4)', 'asin(2)', 'tan(90)', 'tan(270)',
+      '(-1)!', '2.5!', '70!', '(0-2)^0.5'].forEach((expr) => assertThrows(expr, defaultOptions, CalcMathError));
+    assertClose('tan(90)', { ...defaultOptions, angleMode: 'RAD' }, Math.tan(90));
+
+    assertFormat(0.1 + 0.2, '0.3');
+    assertFormat(1.22e-16, '0');
+    assertFormat(1 / 3, '0.333333333333');
+    assertFormat(1e12, '1×10^12');
+    assertFormat(2.5e-10, '2.5×10^-10');
+    assertFormat(-42, '-42');
+
+    const body = document.querySelector('#results');
+    let passed = 0;
+    cases.forEach((test) => {
+      let ok = false;
+      let detail = 'pass';
+      try { ok = test.run(); } catch (error) { detail = `${error.name}: ${error.message}`; }
+      if (ok) passed += 1;
+      const row = document.createElement('tr');
+      row.className = ok ? 'pass' : 'fail';
+      row.innerHTML = `<td>${test.label}</td><td>${test.expected}</td><td>${ok ? 'PASS' : detail}</td>`;
+      body.append(row);
+    });
+    document.querySelector('#summary').textContent = `${passed} / ${cases.length} passed`;
+  </script>
+</body>
+</html>
