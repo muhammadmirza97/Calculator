@@ -12,6 +12,10 @@ let history = [];
 const expressionElement = document.querySelector('#expression');
 const resultElement = document.querySelector('#result');
 const keypadElement = document.querySelector('#keypad');
+const angleStatusElement = document.querySelector('#status-angle');
+const memoryStatusElement = document.querySelector('#status-mem');
+const shiftButton = keypadElement.querySelector('[data-action="shift"]');
+const shiftableButtons = keypadElement.querySelectorAll('.shiftable');
 
 function renderExpression() {
   expressionElement.textContent = segments.join('');
@@ -58,6 +62,23 @@ function calculate() {
   }
 }
 
+function renderMemoryStatus() {
+  memoryStatusElement.hidden = mem === 0;
+}
+
+function setShift(active) {
+  shiftActive = active;
+  shiftButton.classList.toggle('is-shift-active', active);
+  shiftButton.setAttribute('aria-pressed', String(active));
+  shiftableButtons.forEach((button) => {
+    const label = button.querySelector('.key-label');
+    const legend = button.querySelector('.shift-legend');
+    button.dataset.baseLabel ||= label.textContent;
+    label.textContent = active ? button.dataset.shiftLabel : button.dataset.baseLabel;
+    legend.textContent = active ? button.dataset.baseLabel : button.dataset.shiftLabel;
+  });
+}
+
 function handleAction(action) {
   if (action === 'equals') {
     calculate();
@@ -70,6 +91,22 @@ function handleAction(action) {
     justEvaluated = false;
     resultElement.textContent = '';
     renderExpression();
+  } else if (action === 'shift') {
+    setShift(!shiftActive);
+  } else if (action === 'mode') {
+    angleMode = angleMode === 'DEG' ? 'RAD' : 'DEG';
+    angleStatusElement.textContent = angleMode;
+  } else if (action === 'mplus') {
+    mem += ans;
+    renderMemoryStatus();
+  } else if (action === 'mminus') {
+    mem -= ans;
+    renderMemoryStatus();
+  } else if (action === 'mr') {
+    insertSegment('M');
+  } else if (action === 'mc') {
+    mem = 0;
+    renderMemoryStatus();
   }
 }
 
@@ -77,12 +114,22 @@ keypadElement.addEventListener('click', (event) => {
   const button = event.target.closest('button.key');
   if (!button || !keypadElement.contains(button)) return;
   clearError();
+  if (button.dataset.action === 'shift') {
+    handleAction('shift');
+    return;
+  }
   if (button.dataset.insert !== undefined) {
-    insertSegment(button.dataset.insert);
+    insertSegment(shiftActive && button.dataset.shiftInsert
+      ? button.dataset.shiftInsert
+      : button.dataset.insert);
   } else {
     handleAction(button.dataset.action);
   }
+  if (shiftActive) setShift(false);
 });
 
 resultElement.textContent = '';
+angleStatusElement.textContent = angleMode;
+renderMemoryStatus();
+setShift(false);
 renderExpression();

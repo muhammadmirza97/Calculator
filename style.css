@@ -115,6 +115,7 @@ button { font: inherit; }
 .key-operator { color: #f6c56f; font-size: 1.15rem; }
 .key-danger { color: #ffb1a9; }
 .key-equals { border-color: #e69927; background: linear-gradient(#f0ad42, #d67e18); color: #211407; font-size: 1.25rem; font-weight: 800; }
+.key.is-shift-active { border-color: #efc758; background: linear-gradient(#8a6d25, #614a18); color: #fff3bc; }
 
 .shift-legend {
   position: absolute;
