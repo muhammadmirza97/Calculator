@@ -86,8 +86,19 @@ function renderHistory() {
 }
 
 function toggleHistory() {
+  if (window.matchMedia('(min-width: 900px)').matches) {
+    historyPanel.classList.add('is-open');
+    historyPanel.setAttribute('aria-hidden', 'false');
+    return;
+  }
   const isOpen = historyPanel.classList.toggle('is-open');
   historyPanel.setAttribute('aria-hidden', String(!isOpen));
+}
+
+function syncHistoryPresentation() {
+  const isDesktop = window.matchMedia('(min-width: 900px)').matches;
+  historyPanel.classList.toggle('is-open', isDesktop);
+  historyPanel.setAttribute('aria-hidden', String(!isDesktop));
 }
 
 function renderMemoryStatus() {
@@ -206,9 +217,12 @@ window.addEventListener('keydown', (event) => {
   flashKey(button);
 });
 
+window.matchMedia('(min-width: 900px)').addEventListener('change', syncHistoryPresentation);
+
 resultElement.textContent = '';
 angleStatusElement.textContent = angleMode;
 renderMemoryStatus();
 setShift(false);
 renderHistory();
+syncHistoryPresentation();
 renderExpression();
