@@ -116,6 +116,7 @@ button { font: inherit; }
 .key-danger { color: #ffb1a9; }
 .key-equals { border-color: #e69927; background: linear-gradient(#f0ad42, #d67e18); color: #211407; font-size: 1.25rem; font-weight: 800; }
 .key.is-shift-active { border-color: #efc758; background: linear-gradient(#8a6d25, #614a18); color: #fff3bc; }
+.key.key-flash { transform: translateY(2px); box-shadow: 0 1px 0 #0b0d10, inset 0 1px #ffffff18; filter: brightness(1.25); }
 
 .shift-legend {
   position: absolute;
@@ -128,7 +129,35 @@ button { font: inherit; }
   pointer-events: none;
 }
 
-#history-panel { display: none; }
+#history-panel {
+  position: fixed;
+  z-index: 5;
+  right: 18px;
+  top: 18px;
+  bottom: 18px;
+  width: min(360px, calc(100vw - 36px));
+  padding: 20px;
+  overflow: auto;
+  border: 1px solid #3b414c;
+  border-radius: 20px;
+  background: #171a20f5;
+  box-shadow: 0 24px 70px #000b;
+  transform: translateX(calc(100% + 36px));
+  transition: transform .25s ease;
+}
+
+#history-panel.is-open { transform: translateX(0); }
+
+.history-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+.history-kicker { color: #e9be55; font-size: .64rem; letter-spacing: .14em; }
+.history-header h2 { margin: 2px 0 0; font-size: 1.35rem; }
+#clear-history { border: 1px solid #4a505b; border-radius: 999px; padding: 7px 12px; background: #252a32; color: #d6d8dc; cursor: pointer; }
+#history-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+#history-list button { width: 100%; border: 1px solid #303640; border-radius: 12px; padding: 11px 12px; background: #20242b; color: #eff0f2; text-align: left; cursor: pointer; }
+#history-list button span, #history-list button strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#history-list button span { color: #aeb3bb; font-family: "Lucida Console", "Courier New", monospace; font-size: .78rem; }
+#history-list button strong { margin-top: 5px; color: #f0c468; font-size: 1.05rem; text-align: right; }
+.history-empty { padding: 24px 12px; color: #7e848e; text-align: center; }
 
 @media (max-width: 420px) {
   body { padding: 10px 8px; }

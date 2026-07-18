@@ -72,7 +72,14 @@
         <button class="key key-equals" data-action="equals">=</button>
       </div>
     </section>
-    <aside id="history-panel" aria-label="Calculation history">
+    <aside id="history-panel" aria-label="Calculation history" aria-hidden="true">
+      <div class="history-header">
+        <div>
+          <span class="history-kicker">CALC LOG</span>
+          <h2>History</h2>
+        </div>
+        <button id="clear-history" type="button">Clear</button>
+      </div>
       <ul id="history-list"></ul>
     </aside>
   </main>

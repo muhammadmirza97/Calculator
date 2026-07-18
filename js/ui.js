@@ -16,6 +16,9 @@ const angleStatusElement = document.querySelector('#status-angle');
 const memoryStatusElement = document.querySelector('#status-mem');
 const shiftButton = keypadElement.querySelector('[data-action="shift"]');
 const shiftableButtons = keypadElement.querySelectorAll('.shiftable');
+const historyPanel = document.querySelector('#history-panel');
+const historyList = document.querySelector('#history-list');
+const clearHistoryButton = document.querySelector('#clear-history');
 
 function renderExpression() {
   expressionElement.textContent = segments.join('');
@@ -48,6 +51,7 @@ function calculate() {
     ans = result;
     history.unshift({ segments: [...segments], resultText });
     if (history.length > 50) history.pop();
+    renderHistory();
     justEvaluated = true;
   } catch (error) {
     if (error instanceof CalcSyntaxError) {
@@ -60,6 +64,30 @@ function calculate() {
     errorState = true;
     justEvaluated = false;
   }
+}
+
+function renderHistory() {
+  historyList.replaceChildren();
+  history.forEach((entry, index) => {
+    const item = document.createElement('li');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.historyIndex = String(index);
+    button.innerHTML = `<span>${entry.segments.join('')}</span><strong>${entry.resultText}</strong>`;
+    item.append(button);
+    historyList.append(item);
+  });
+  if (history.length === 0) {
+    const emptyItem = document.createElement('li');
+    emptyItem.className = 'history-empty';
+    emptyItem.textContent = 'Your calculations will appear here.';
+    historyList.append(emptyItem);
+  }
+}
+
+function toggleHistory() {
+  const isOpen = historyPanel.classList.toggle('is-open');
+  historyPanel.setAttribute('aria-hidden', String(!isOpen));
 }
 
 function renderMemoryStatus() {
@@ -107,12 +135,12 @@ function handleAction(action) {
   } else if (action === 'mc') {
     mem = 0;
     renderMemoryStatus();
+  } else if (action === 'hist') {
+    toggleHistory();
   }
 }
 
-keypadElement.addEventListener('click', (event) => {
-  const button = event.target.closest('button.key');
-  if (!button || !keypadElement.contains(button)) return;
+function pressCalculatorButton(button) {
   clearError();
   if (button.dataset.action === 'shift') {
     handleAction('shift');
@@ -126,10 +154,61 @@ keypadElement.addEventListener('click', (event) => {
     handleAction(button.dataset.action);
   }
   if (shiftActive) setShift(false);
+}
+
+keypadElement.addEventListener('click', (event) => {
+  const button = event.target.closest('button.key');
+  if (!button || !keypadElement.contains(button)) return;
+  pressCalculatorButton(button);
+});
+
+historyList.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-history-index]');
+  if (!button || !historyList.contains(button)) return;
+  const entry = history[Number(button.dataset.historyIndex)];
+  if (!entry) return;
+  segments = [...entry.segments];
+  justEvaluated = false;
+  errorState = false;
+  renderExpression();
+  if (window.matchMedia('(max-width: 899px)').matches) toggleHistory();
+});
+
+clearHistoryButton.addEventListener('click', () => {
+  history = [];
+  renderHistory();
+});
+
+function flashKey(button) {
+  button.classList.add('key-flash');
+  window.setTimeout(() => button.classList.remove('key-flash'), 100);
+}
+
+window.addEventListener('keydown', (event) => {
+  const insertMap = {
+    '*': '×', '/': '÷', s: 'sin(', c: 'cos(', t: 'tan(', l: 'log(', n: 'ln(',
+    p: 'π', e: 'e', r: '√(', a: 'Ans'
+  };
+  const actionMap = { Enter: 'equals', '=': 'equals', Backspace: 'del', Escape: 'ac', m: 'mode', h: 'hist' };
+  let button;
+
+  if (/^[0-9.]$/.test(event.key) || ['+', '-', '^', '!', '(', ')'].includes(event.key)) {
+    button = keypadElement.querySelector(`[data-insert="${event.key}"]`);
+  } else if (insertMap[event.key]) {
+    button = keypadElement.querySelector(`[data-insert="${insertMap[event.key]}"]`);
+  } else if (actionMap[event.key]) {
+    button = keypadElement.querySelector(`[data-action="${actionMap[event.key]}"]`);
+  }
+
+  if (!button) return;
+  if (event.key === '/' || event.key === 'Enter' || event.key === '=') event.preventDefault();
+  pressCalculatorButton(button);
+  flashKey(button);
 });
 
 resultElement.textContent = '';
 angleStatusElement.textContent = angleMode;
 renderMemoryStatus();
 setShift(false);
+renderHistory();
 renderExpression();
