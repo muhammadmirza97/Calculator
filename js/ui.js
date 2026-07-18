@@ -219,6 +219,23 @@ window.addEventListener('keydown', (event) => {
 
 window.matchMedia('(min-width: 900px)').addEventListener('change', syncHistoryPresentation);
 
+if (new URLSearchParams(window.location.search).has('launcher')) {
+  let lastActivityReport = 0;
+  const reportActivity = () => {
+    const now = Date.now();
+    if (now - lastActivityReport < 10_000) return;
+    lastActivityReport = now;
+    fetch('/__activity', { method: 'POST', keepalive: true }).catch(() => {});
+  };
+  ['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart'].forEach((eventName) => {
+    window.addEventListener(eventName, reportActivity, { passive: true });
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) reportActivity();
+  });
+  reportActivity();
+}
+
 resultElement.textContent = '';
 angleStatusElement.textContent = angleMode;
 renderMemoryStatus();

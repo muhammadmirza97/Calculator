@@ -10,7 +10,14 @@ A responsive browser-based scientific calculator inspired by the Casio fx-83/85.
 - Append-only calculator editing with segment-aware DEL behavior
 - Keyboard shortcuts and a 50-entry recallable history
 - Responsive phone keypad and permanent desktop history panel
+- One-click Windows launcher with automatic 30-minute idle shutdown
 - Syntax and math error handling without `eval()` or external libraries
+
+## One-click Windows launcher
+
+Double-click the **Scientific Calculator** desktop shortcut. It starts the local server and opens the calculator in a dedicated app window without a console window.
+
+Activity inside the calculator resets its idle timer. After 30 minutes without pointer, scroll, touch, or keyboard activity, the dedicated app window and local server close automatically. Closing the app window yourself also stops the server.
 
 ## How to run
 
